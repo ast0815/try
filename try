@@ -1,0 +1,64 @@
+#!/bin/bash
+
+USAGE=`cat <<EOF
+Usage:
+    $0 [-n <N>] [-t <T>] <command>
+
+Tries to run <command> until it succeedes (return value == 0)
+or gets aborted by a signal (return value > 128).
+
+Parameters:
+    <N> :   Maximum number of tries. Default: 10
+    <T> :   Seconds to sleep between tries. Default: 5
+EOF
+`
+
+# Default values
+N=10
+T=5
+
+# No parameters?
+if [ $# -lt 1 ]
+then
+    echo "Not enough parameters."
+    echo
+    echo "$USAGE"
+    exit 1
+fi
+
+# Get options
+while getopts "n:t:" opt
+do
+    case $opt in
+        n)
+            N=$OPTARG
+            ;;
+        t)
+            T=$OPTARG
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG"
+            echo
+            echo "$USAGE"
+            exit 1
+            ;;
+    esac
+done
+
+# Shift away parsed options
+shift $((OPTIND-1))
+
+# Give it a try!
+for i in `seq $N`
+do
+    echo "Try $i/$N..."
+    (eval $@)
+    ret=$?
+    echo "Try $i/$N return value: $ret"
+    if [ $ret -eq 0 -o $ret -gt 128 ]
+    then
+        break
+    fi
+    sleep $T
+done
+exit $ret
