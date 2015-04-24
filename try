@@ -5,7 +5,7 @@ Usage:
     $0 [-n <N>] [-t <T>] <command>
 
 Tries to run <command> until it succeedes (return value == 0)
-or gets aborted by a signal (return value > 128).
+or gets aborted by a signal (128 < return value <= 160).
 
 Parameters:
     <N> :   Maximum number of tries. Default: 10
@@ -55,7 +55,7 @@ do
     (eval $@)
     ret=$?
     echo "Try $i/$N return value: $ret"
-    if [ $ret -eq 0 -o $ret -gt 128 ]
+    if [ $ret -eq 0 -o $ret -gt 128 -a $ret -le 160 ]
     then
         break
     fi
